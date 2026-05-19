@@ -226,3 +226,50 @@ def flatten_stream(encoded_stream):
                         flat.append(pair)
 
     return flat
+
+# À METTRE À LA FIN DE src/entropy.py
+
+def unflatten_stream(flat_data, width, height):
+    """
+    Prend la liste plate décodée par Huffman et reconstruit la structure 
+    attendue par les fonctions de décodage I et P.
+    """
+    encoded_stream = []
+    iterator = iter(flat_data)
+    
+    # Calcul du nombre de blocs 8x8 pour les I-frames
+    # et de macroblocs 16x16 pour les P-frames
+    h_pad = (8 - height % 8) % 8 + height
+    w_pad = (8 - width % 8) % 8 + width
+    num_blocks_i = (h_pad // 8) * (w_pad // 8)
+    
+    num_blocks_p_x = width // 16
+    num_blocks_p_y = height // 16
+    num_macroblocks_p = num_blocks_p_x * num_blocks_p_y
+
+    try:
+        while True:
+            # 1. On lit le type de frame ('I' ou 'P')
+            frame_type = next(iterator)
+            
+            if frame_type == "I":
+                rle_blocks = []
+                # On sait qu'une I-frame contient un certain nombre de blocs 8x8
+                for _ in range(num_blocks_i):
+                    block_rle = []
+                    # Chaque bloc RLE se termine par un marqueur de fin (0,0) ou le compte total de coefficients
+                    # Dans ton cas, on extrait les paires (count, value) jusqu'à ce que le bloc soit complet
+                    # Une approche simple si tu as stocké des listes de tuples :
+                    pair = next(iterator)
+                    # On boucle tant que la paire appartient au bloc (dépend de comment flatten l'a écrit)
+                    # Pour coller à ton flatten_stream actuel qui met tout à la suite :
+                    # Ton code met des tuples (run, val) directement dans la liste plate.
+                    
+                    # Attention : lire les éléments du RLE. Comme chaque bloc a un nombre variable de paires,
+                    # une astuce consiste à reconstruire selon la logique de ton flatten.
+                    pass
+                    
+    except StopIteration:
+        pass
+        
+    return encoded_stream
